@@ -20,12 +20,24 @@
 // hre.deployments
 // }
 
+// import helper-hardhat-config.js
+const { networkConfig } = require("../helper-hardhat-config")
 //another simple way
 module.exports = async ({ getNameAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNameAccounts()
     const chainId = network.config.chainId
 
+    // if chainId is X, use address Y, we can learn from AVVE
+    const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
+
     // well what happens when we want to change
     // when going for localhost or hardhat network we want to use a mock
+    const fundMe = await deploy("FundMe", {
+        from: deployer,
+        args: [
+            /* address from constructor */
+        ], // put price feed address
+        log: true,
+    })
 }
