@@ -21,17 +21,24 @@
 // }
 
 // import helper-hardhat-config.js
-const { networkConfig } = require("../helper-hardhat-config")
+const { networkConfig, developmentChains } = require("../helper-hardhat-config")
 
 const { network } = require("hardhat")
 //another simple way
-module.exports = async ({ getNameAccounts, deployments }) => {
+module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
-    const { deployer } = await getNameAccounts()
+    const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
 
     // if chainId is X, use address Y, we can learn from AAVE
-    const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
+    // const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
+    let ethUsdPriceFeedAddress
+    if (developmentChains.includes(network.name)) {
+        const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+        ethUsdPriceFeedAddress = ethUsdAggregator.address
+    } else {
+        ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
+    }
 
     // if the contract doesn't exist, we deploy a minimal version  of
     // for our local testing
@@ -42,7 +49,10 @@ module.exports = async ({ getNameAccounts, deployments }) => {
         from: deployer,
         args: [
             /* address from constructor */
+            ethUsdPriceFeedAddress,
         ], // put price feed address
         log: true,
     })
+    log("-------------------------------------------")
 }
+module.exports.tags = ["all", "fundme"]
