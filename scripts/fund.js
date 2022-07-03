@@ -18,3 +18,6 @@ main()
         console.error(error)
         process.exit(1)
     })
+
+// yarn hardhat node
+// yarn hardhat run scripts/fund.js --network localhost
